@@ -8,7 +8,10 @@
 		this.id = this.generateId();		
 		this.title = params.title;
 		this.time = params.time;
-		this.formattedTime = function() {return this.time.toLocaleString()};
+		this.formattedTime = function() {
+			
+			return this.time.toLocaleString()
+		};
 	}
 	
 	var events = {
@@ -79,16 +82,19 @@
 
 	$(".new-event-form").on("submit", function addEvent(ev) {
 		ev.preventDefault();
-		
-		var params = {
-			title: $newEventTitle.val(),
-			time: new Date($newEventTime.val())
-		};
-		events.add(new MyEvent(params));
-		console.log(this);
-		this.reset();
-		$newEventTime.val(new Date().toDateInputValue());
-		renderList();
+		var isModelValid = $newEventTitle.val() && $newEventTime.val() 
+		if (isModelValid) {
+				var params = {
+				title: $newEventTitle.val(),
+				time: new Date($newEventTime.val())
+			};
+			events.add(new MyEvent(params));
+			this.reset();
+			$newEventTime.val(new Date().toDateInputValue());
+			renderList();
+		} else {
+			alert("Please specify the name and time of event.")
+		}
 	});
 	
 	var $eventsList = $(".events-list");
