@@ -1,6 +1,6 @@
 
 //$(document).ready(function() {
-	function Task(params) {
+	function MyEvent(params) {
 		this.generateId = function() {
 			return Math.random().toString().substring(2);
 		}	
@@ -9,55 +9,55 @@
 		this.title = params.title;
 	}
 	
-	var tasks = {
-		tasksList: [],
+	var events = {
+		eventsList: [],
 		
-		getAll: function() { return this.tasksList; },
+		getAll: function() { return this.eventsList; },
 		
-		add: function(task) {
-			this.tasksList.push(task)
+		add: function(event) {
+			this.eventsList.push(event)
 		},
 		
-		update: function(updatedTask) {
-			var taskIndex = this.tasksList.indexOf(this.getById(updatedTask.taskId));
-			this[taskIndex] = updatedTask;	
+		update: function(updatedevent) {
+			var eventIndex = this.eventsList.indexOf(this.getById(updatedevent.eventId));
+			this[eventIndex] = updatedevent;	
 		},
 		
 		getById: function(id) {
-			var taskWeLookFor = null;
-			this.tasksList.forEach(function(element) {
+			var eventWeLookFor = null;
+			this.eventsList.forEach(function(element) {
 				if (element.id == id) {
-					taskWeLookFor = element;
+					eventWeLookFor = element;
 				}
 			}, this);
-			return taskWeLookFor;
+			return eventWeLookFor;
 		},
 		
-		removeById: function(taskId) {
-			var IndexOfTaskToRemove = this.tasksList.indexOf(this.getById(taskId));
-			if (IndexOfTaskToRemove > -1) {
-				this.tasksList.splice(IndexOfTaskToRemove, 1);
+		removeById: function(eventId) {
+			var IndexOfeventToRemove = this.eventsList.indexOf(this.getById(eventId));
+			if (IndexOfeventToRemove > -1) {
+				this.eventsList.splice(IndexOfeventToRemove, 1);
 			}
 		}
 
 	};
 	
-	var task1 = new Task({title: "buy milk"});
-	var task2 = new Task({title: "go to gym"});
+	var event1 = new MyEvent({title: "Tom's party"});
+	var event2 = new MyEvent({title: "meeting with boss"});
 	
-	tasks.add(task1);
-	tasks.add(task2);
+	events.add(event1);
+	events.add(event2);
 	
 	
-	console.log(tasks.tasksList);
+	console.log(events.eventsList);
 		
-	var source = $("#task-template").html();
+	var source = $("#event-template").html();
 	var template = Handlebars.compile(source);
 	var data = {
-		tasksList: tasks.getAll()
+		eventsList: events.getAll()
 	};
 	
 	var output = template(data);
-	$(".tasks-list").html(output);
+	$(".events-list").html(output);
 
 //});

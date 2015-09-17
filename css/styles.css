@@ -10,23 +10,23 @@ body {
 	margin: 0 auto;
 }
 
-.new-task {
+.new-event {
 	height: 120px;
 }
 
-.new-task-title {
+.new-event-title {
 	width: 100%;
 	height: 3em;
 	margin-bottom: 20px;
 }
 
-.new-task-time {
+.new-event-time {
 
 	height: 3em;
 	margin-bottom: 20px;
 }
 
-.add-task-btn {
+.add-event-btn {
     display: inline-block;
 	float: right;
 	width: 10%;
@@ -34,7 +34,7 @@ body {
 	margin-bottom: 20px;
 }
 
-.task {
+.event {
   background: #eee;
   height: 50px;
   padding: 10px;
@@ -43,16 +43,16 @@ body {
 
 
 
-.task > * {
+.event > * {
 	display: inline-block;
 	float: left;
 }
-.task-complete {
+.event-complete {
 	width: 20px;
 	height: 20px;
 	margin-right: 20px;
 }
-.task-delete {
+.event-delete {
 	float: right;
 	padding: 5px;
 	cursor: pointer;

@@ -2,33 +2,33 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Tasker</title>
+	<title>eventer</title>
 	<link rel="stylesheet" href="css/normalize.css">
 	<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 	<div class="container">
-		<h1>Tasker</h1>
+		<h1>eventer</h1>
 		
-		<section class="new-task">
-			<form class="new-task-form">
-				<input type="text" placeholder="What needs to be done?" name="taskName" class="new-task-title">
-				<input type="datetime-local" class="new-task-time" name="taskTime">
-				<button class="add-task-btn" >Add</button>
+		<section class="new-event">
+			<form class="new-event-form">
+				<input type="text" placeholder="New event name" name="eventName" class="new-event-title">
+				<input type="datetime-local" class="new-event-time" name="eventTime">
+				<button class="add-event-btn" >Add</button>
 			</form>
 		</section>
 		
-		<section class="tasks-list">
-			<script id="task-template" type="text/x-handlebars-template">
-				{{#tasksList}}
-					<article class="task">
-						<input type="checkbox" class="task-complete">
-						<p class="task-title">
+		<section class="events-list">
+			<script id="event-template" type="text/x-handlebars-template">
+				{{#eventsList}}
+					<article class="event">
+						<input type="checkbox" class="event-complete">
+						<p class="event-title">
 							{{title}}
 						</p>
-						<span class="task-delete">x</span>
+						<span class="event-delete">x</span>
 					</article>
-				{{/tasksList}}
+				{{/eventsList}}
 			</script>			
 		</section>
 	<!--container end	-->
