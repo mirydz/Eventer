@@ -9,11 +9,34 @@
 <body>
 	<div class="container">
 		<h1>Tasker</h1>
+		
+		<section class="new-task">
+			<form class="new-task-form">
+				<input type="text" placeholder="What needs to be done?" name="taskName" class="new-task-title">
+				<input type="datetime-local" class="new-task-time" name="taskTime">
+				<button class="add-task-btn" >Add</button>
+			</form>
+		</section>
+		
+		<section class="tasks-list">
+			<script id="task-template" type="text/x-handlebars-template">
+				{{#tasksList}}
+					<article class="task">
+						<input type="checkbox" class="task-complete">
+						<p class="task-title">
+							{{title}}
+						</p>
+						<span class="task-delete">x</span>
+					</article>
+				{{/tasksList}}
+			</script>			
+		</section>
 	<!--container end	-->
 	</div> 
 	
 	
 	<script src="js/jquery-1.11.3.min.js" type="text/javascript"></script>
+	<script src="js/handlebars-v4.0.2.js" type="text/javascript"></script>	
 	<script src="js/app.js" type="text/javascript"></script>
 </body>
 </html>

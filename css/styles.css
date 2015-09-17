@@ -9,3 +9,51 @@ body {
 	width: 90%;
 	margin: 0 auto;
 }
+
+.new-task {
+	height: 120px;
+}
+
+.new-task-title {
+	width: 100%;
+	height: 3em;
+	margin-bottom: 20px;
+}
+
+.new-task-time {
+
+	height: 3em;
+	margin-bottom: 20px;
+}
+
+.add-task-btn {
+    display: inline-block;
+	float: right;
+	width: 10%;
+    padding: 10px;
+	margin-bottom: 20px;
+}
+
+.task {
+  background: #eee;
+  height: 50px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+
+
+.task > * {
+	display: inline-block;
+	float: left;
+}
+.task-complete {
+	width: 20px;
+	height: 20px;
+	margin-right: 20px;
+}
+.task-delete {
+	float: right;
+	padding: 5px;
+	cursor: pointer;
+}
