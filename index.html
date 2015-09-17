@@ -13,7 +13,7 @@
 		<section class="new-event">
 			<form class="new-event-form">
 				<input type="text" placeholder="New event name" name="eventName" class="new-event-title">
-				<input type="datetime-local" class="new-event-time" name="eventTime">
+				<input type="datetime-local" class="new-event-time" name="eventTime" placeholder="">
 				<button class="add-event-btn" >Add</button>
 			</form>
 		</section>
@@ -24,7 +24,7 @@
 					<article class="event" data-id="{{id}}">
 						<input type="checkbox" class="event-complete">
 						<p class="event-title">
-							{{title}}
+							{{title}} {{formattedTime}}
 						</p>
 						<span class="event-delete">x</span>
 					</article>

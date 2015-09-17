@@ -8,6 +8,7 @@
 		this.id = this.generateId();		
 		this.title = params.title;
 		this.time = params.time;
+		this.formattedTime = function() {return this.time.toLocaleString()};
 	}
 	
 	var events = {
@@ -41,14 +42,16 @@
 			}
 		}
 
-	};
+	}
 	
 	function renderList() {
 		var templateData = {
 			eventsList: events.getAll()
 		};
 		var output = template(templateData);
-		$eventsList.html(output);		
+		$eventsList.html(output);
+		registerHandlers();
+				
 	}
 	
 	function insertInitialData() {	
@@ -66,6 +69,28 @@
 		console.log(events.eventsList);
 	};
 	
+	function registerHandlers() {
+		$(".event-delete").on("click", function deleteEvent() {
+			var id = $(this).parent().data("id");
+			events.removeById(id);
+			renderList();
+		});	
+	}	
+
+	$(".new-event-form").on("submit", function addEvent(ev) {
+		ev.preventDefault();
+		
+		var params = {
+			title: $newEventTitle.val(),
+			time: new Date($newEventTime.val())
+		};
+		events.add(new MyEvent(params));
+		console.log(this);
+		this.reset();
+		$newEventTime.val(new Date().toDateInputValue());
+		renderList();
+	});
+	
 	var $eventsList = $(".events-list");
 	var templateSource = $("#event-template").html();
 	var $newEventTitle = $(".new-event-title");
@@ -76,29 +101,14 @@
 	insertInitialData();
 	renderList();
 	
-	// interaction with user
-	$(".new-event-form").on("submit", function addEvent(ev) {
-		ev.preventDefault();
-		var params = {
-			title: $newEventTitle.val(),
-			time: new Date($newEventTime.val())
-		};
-		events.add(new MyEvent(params));
-		console.log(this);
-		this.reset();
-		renderList();
+	// set datetime-local input value to today for easier work
+	// see: http://stackoverflow.com/questions/6982692/html5-input-type-date-default-value-to-today
+	Date.prototype.toDateInputValue = (function() {
+		var local = new Date(this);
+		local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+		return local.toJSON().slice(0,16);
 	});
-	
-	$(".event-delete").on("click", function deleteEvent() {
-		var id = $(this).parent().data("id");
-		events.removeById(id);
-		renderList();
-	});
-	
-	
-
-	
-
+	$newEventTime.val(new Date().toDateInputValue());
 	
 	
 
