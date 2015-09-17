@@ -48,40 +48,57 @@
 			eventsList: events.getAll()
 		};
 		var output = template(templateData);
-		$(".events-list").html(output);		
+		$eventsList.html(output);		
 	}
 	
-	var event1 = new MyEvent({
-		title: "Tom's party",
-		time: new Date(2015, 09, 30)
-	});
-	var event2 = new MyEvent({
-		title: "meeting with boss",
-		time: new Date(2015, 09, 25)
-	});
+	function insertInitialData() {	
+		var event1 = new MyEvent({
+			title: "Tom's party",
+			time: new Date(2015, 09, 30)
+		});
+		var event2 = new MyEvent({
+			title: "meeting with boss",
+			time: new Date(2015, 09, 25)
+		});
+		
+		events.add(event1);
+		events.add(event2);
+		console.log(events.eventsList);
+	};
 	
-	events.add(event1);
-	events.add(event2);
-	console.log(events.eventsList);
+	var $eventsList = $(".events-list");
+	var templateSource = $("#event-template").html();
+	var $newEventTitle = $(".new-event-title");
+	var $newEventTime = $(".new-event-time");
 	
 	// initial rendering of events list
-	var templateSource = $("#event-template").html();
 	var template = Handlebars.compile(templateSource);
+	insertInitialData();
 	renderList();
 	
-	var $newEventForm = $(".new-event-form");
-	
-	$newEventForm.on("submit", function addEvent(ev) {
+	// interaction with user
+	$(".new-event-form").on("submit", function addEvent(ev) {
 		ev.preventDefault();
 		var params = {
-			title: $(".new-event-title").val(),
-			time: new Date($(".new-event-time").val())
-		}
+			title: $newEventTitle.val(),
+			time: new Date($newEventTime.val())
+		};
 		events.add(new MyEvent(params));
 		console.log(this);
 		this.reset();
 		renderList();
 	});
+	
+	$(".event-delete").on("click", function deleteEvent() {
+		var id = $(this).parent().data("id");
+		events.removeById(id);
+		renderList();
+	});
+	
+	
+
+	
+
 	
 	
 
