@@ -7,6 +7,7 @@
 		
 		this.id = this.generateId();		
 		this.title = params.title;
+		this.time = params.time;
 	}
 	
 	var events = {
@@ -42,22 +43,46 @@
 
 	};
 	
-	var event1 = new MyEvent({title: "Tom's party"});
-	var event2 = new MyEvent({title: "meeting with boss"});
+	function renderList() {
+		var templateData = {
+			eventsList: events.getAll()
+		};
+		var output = template(templateData);
+		$(".events-list").html(output);		
+	}
+	
+	var event1 = new MyEvent({
+		title: "Tom's party",
+		time: new Date(2015, 09, 30)
+	});
+	var event2 = new MyEvent({
+		title: "meeting with boss",
+		time: new Date(2015, 09, 25)
+	});
 	
 	events.add(event1);
 	events.add(event2);
-	
-	
 	console.log(events.eventsList);
-		
-	var source = $("#event-template").html();
-	var template = Handlebars.compile(source);
-	var data = {
-		eventsList: events.getAll()
-	};
 	
-	var output = template(data);
-	$(".events-list").html(output);
+	// initial rendering of events list
+	var templateSource = $("#event-template").html();
+	var template = Handlebars.compile(templateSource);
+	renderList();
+	
+	var $newEventForm = $(".new-event-form");
+	
+	$newEventForm.on("submit", function addEvent(ev) {
+		ev.preventDefault();
+		var params = {
+			title: $(".new-event-title").val(),
+			time: new Date($(".new-event-time").val())
+		}
+		events.add(new MyEvent(params));
+		console.log(this);
+		this.reset();
+		renderList();
+	});
+	
+	
 
 //});
