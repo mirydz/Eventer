@@ -28,7 +28,7 @@ body {
 
 .add-event-btn {
     display: inline-block;
-	float: right;
+	/*float: right;*/
 	width: 10%;
     padding: 10px;
 	margin-bottom: 20px;
@@ -36,24 +36,48 @@ body {
 
 .event {
   background: #eee;
-  height: 50px;
   padding: 10px;
   margin-bottom: 10px;
 }
 
 
-
-.event > * {
+.event-title {
 	display: inline-block;
-	float: left;
+	margin: 0;
+	padding: 5px;
+	font-weight: bold;
+	font-size: 120%;
 }
-.event-complete {
-	width: 20px;
-	height: 20px;
-	margin-right: 20px;
+
+.event-time {
+	display: inline-block;
+	margin: 0;
+	padding: 5px;
 }
+
 .event-delete {
+	float: right;
+	margin: 0;	
+	padding: 5px;
+	cursor: pointer;
+	color: red;
+}
+
+.event-edit {
+	float: right;
+	margin: 0;
+	padding: 5px;
+	cursor: pointer;
+	margin-right: 5px;
+}
+.event-save {
 	float: right;
 	padding: 5px;
 	cursor: pointer;
+	margin: 0 5px 0 0;
+	display: none;
+}
+
+p[contenteditable=true] {
+	background: #fff;
 }

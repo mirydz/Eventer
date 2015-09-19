@@ -1,76 +1,100 @@
+/* global Handlebars */
+/* global $ */
 
 //$(document).ready(function() {
 	function MyEvent(params) {
-		this.generateId = function() {
-			return Math.random().toString().substring(2);
-		}	
-		
-		this.id = this.generateId();		
+		this.id = params.id;		
 		this.title = params.title;
 		this.time = params.time;
-		this.formattedTime = function() {
-			
-			return this.time.toLocaleString()
-		};
 	}
 	
-	var events = {
-		eventsList: [],
+	MyEvent.prototype.formattedTime = function() {
+		return this.time.toLocaleString()
+	};
+	
+	var events = (function() {
+		var eventsList =  [];
+		var store = new Dexie("events-store");
+		store.version(1).stores({event: '++id', });
+		store.event.mapToClass(MyEvent);
+		store.on("populate", populateWithSampleData);
+		store.open();
+		function getAll(callback) { 
+			store.event.toArray(function(result) {
+				callback(result);
+			});
+		}
 		
-		getAll: function() { return this.eventsList; },
+		function add(newEvent) {
+			//eventsList.push(newEvent);
+			store.event.put({
+				title: newEvent.title,
+				time: newEvent.time,
+			});
+		}
 		
-		add: function(event) {
-			this.eventsList.push(event)
-		},
+		function update(updatedEvent) {
+			store.event.put({
+				title: updatedEvent.title,
+				time: updatedEvent.time,
+				id: updatedEvent.id
+			});
+		}
 		
-		update: function(updatedevent) {
-			var eventIndex = this.eventsList.indexOf(this.getById(updatedevent.eventId));
-			this[eventIndex] = updatedevent;	
-		},
-		
-		getById: function(id) {
+		function getById(id) {
 			var eventWeLookFor = null;
-			this.eventsList.forEach(function(element) {
+			eventsList.forEach(function(element) {
 				if (element.id == id) {
 					eventWeLookFor = element;
 				}
 			}, this);
 			return eventWeLookFor;
-		},
+		}
 		
-		removeById: function(eventId) {
-			var IndexOfeventToRemove = this.eventsList.indexOf(this.getById(eventId));
-			if (IndexOfeventToRemove > -1) {
-				this.eventsList.splice(IndexOfeventToRemove, 1);
-			}
+		function removeById(eventId) {
+			store.event.delete(eventId);
+		}
+		
+		function populateWithSampleData() {
+			var initialData = [	
+				{
+					title: "Tom's party",
+					time: new Date(2015, 10, 30)
+				},
+				{
+					title: "meeting with boss",
+					time: new Date(2015, 10, 25)
+				},
+				{
+					title: "doctor's appointment",
+					time: new Date(2015, 10, 26)
+				}
+			];
+			
+			initialData.forEach(function(sampleEvent) {
+				store.event.add(sampleEvent);
+			}, this);
+		}
+		return {
+			getAll: getAll,
+			add: add,
+			update: update,
+			removeById: removeById,
+			store: store,
 		}
 
+	}());
+	var x = null;
+	function renderList() {	
+		function onFinishedFetchingData(data) {
+			var templateData = { eventsList: data };
+			var output = template(templateData);
+			x = data;
+			$eventsList.html(output);
+			registerHandlers();
+		}
+		events.getAll(onFinishedFetchingData)			
 	}
-	
-	function renderList() {
-		var templateData = {
-			eventsList: events.getAll()
-		};
-		var output = template(templateData);
-		$eventsList.html(output);
-		registerHandlers();
-				
-	}
-	
-	function insertInitialData() {	
-		var event1 = new MyEvent({
-			title: "Tom's party",
-			time: new Date(2015, 09, 30)
-		});
-		var event2 = new MyEvent({
-			title: "meeting with boss",
-			time: new Date(2015, 09, 25)
-		});
-		
-		events.add(event1);
-		events.add(event2);
-		console.log(events.eventsList);
-	};
 	
 	function registerHandlers() {
 		$(".event-delete").on("click", function deleteEvent() {
@@ -78,6 +102,35 @@
 			events.removeById(id);
 			renderList();
 		});	
+		
+		$(".event-edit").on("click", function editEvent() {
+			var $eventEditBtn = $(this);
+			var $eventSaveBtn = $eventEditBtn.siblings(".event-save");
+			var $eventTitle = $eventEditBtn.siblings(".event-title");
+			var $eventTime = $eventEditBtn.siblings(".event-time");
+			var eventId = $eventEditBtn.parent(".event").data("id");
+			var enableEdit = function(state) {
+				$eventEditBtn.siblings(".event-title, .event-time")
+				.attr("contenteditable", state);
+			};
+			enableEdit(true);
+			$eventEditBtn.hide();	
+			$eventSaveBtn.on("click", function saveEvent() {
+				enableEdit(false);
+				$eventSaveBtn.hide();
+				var modifiedEvent = new MyEvent({
+					title: $eventTitle.html(),
+					time: $eventTime.html(),
+					id: eventId
+				});
+				events.update(modifiedEvent)
+					
+				$eventEditBtn.show();
+				renderList();
+			});
+			$eventSaveBtn.show();
+			
+		});
 	}	
 
 	$(".new-event-form").on("submit", function addEvent(ev) {
@@ -97,6 +150,8 @@
 		}
 	});
 	
+
+	
 	var $eventsList = $(".events-list");
 	var templateSource = $("#event-template").html();
 	var $newEventTitle = $(".new-event-title");
@@ -104,7 +159,6 @@
 	
 	// initial rendering of events list
 	var template = Handlebars.compile(templateSource);
-	insertInitialData();
 	renderList();
 	
 	// set datetime-local input value to today for easier work
