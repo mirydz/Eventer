@@ -5,11 +5,17 @@
 	function MyEvent(params) {
 		this.id = params.id;		
 		this.title = params.title;
+		this.description = params.description || "";
 		this.time = params.time;
+		this.reminderTime = params.reminderTime;
 	}
 	
 	MyEvent.prototype.formattedTime = function() {
-		return this.time.toLocaleString()
+		return this.time.toLocaleString();
+	};
+	
+	MyEvent.prototype.formattedReminderTime = function() {
+		return this.reminderTime.toLocaleString();
 	};
 	
 	var events = (function() {
@@ -21,22 +27,29 @@
 		store.open();
 		function getAll(callback) { 
 			store.event.toArray(function(result) {
+				EventsViewModel = result;
 				callback(result);
 			});
 		}
 		
 		function add(newEvent) {
 			//eventsList.push(newEvent);
-			store.event.put({
-				title: newEvent.title,
-				time: newEvent.time,
-			});
+			var ev = {
+				title: 			newEvent.title,
+				description: 	newEvent.description,
+				time: 			newEvent.time,
+				reminderTime: 	newEvent.reminderTime
+			};
+			ev.reminderTime = newEvent.reminderTime;
+			store.event.put(ev);
 		}
 		
 		function update(updatedEvent) {
 			store.event.put({
 				title: updatedEvent.title,
+				description: updatedEvent.description,
 				time: updatedEvent.time,
+				reminderTime: updatedEvent.reminderTime,
 				id: updatedEvent.id
 			});
 		}
@@ -59,11 +72,13 @@
 			var initialData = [	
 				{
 					title: "Tom's party",
-					time: new Date(2015, 10, 30)
+					time: new Date(2015, 10, 30),
+					description: "Remember to bering beer"
 				},
 				{
 					title: "meeting with boss",
-					time: new Date(2015, 10, 25)
+					time: new Date(2015, 10, 25),
+					description: ""
 				},
 				{
 					title: "doctor's appointment",
@@ -84,12 +99,12 @@
 		}
 
 	}());
-	var x = null;
+	var EventsViewModel = [];
 	function renderList() {	
 		function onFinishedFetchingData(data) {
 			var templateData = { eventsList: data };
 			var output = template(templateData);
-			x = data;
+			//x = data;
 			$eventsList.html(output);
 			registerHandlers();
 		}
@@ -108,9 +123,10 @@
 			var $eventSaveBtn = $eventEditBtn.siblings(".event-save");
 			var $eventTitle = $eventEditBtn.siblings(".event-title");
 			var $eventTime = $eventEditBtn.siblings(".event-time");
+			var $eventReminderTime = $eventEditBtn.siblings(".event-reminder-time");
 			var eventId = $eventEditBtn.parent(".event").data("id");
 			var enableEdit = function(state) {
-				$eventEditBtn.siblings(".event-title, .event-time")
+				$eventEditBtn.siblings(".event-title, .event-time, .event-reminder-time")
 				.attr("contenteditable", state);
 			};
 			enableEdit(true);
@@ -121,6 +137,7 @@
 				var modifiedEvent = new MyEvent({
 					title: $eventTitle.html(),
 					time: $eventTime.html(),
+					reminderTime: $eventReminderTime.html(),
 					id: eventId
 				});
 				events.update(modifiedEvent)
@@ -137,9 +154,11 @@
 		ev.preventDefault();
 		var isModelValid = $newEventTitle.val() && $newEventTime.val() 
 		if (isModelValid) {
-				var params = {
+			var params = {
 				title: $newEventTitle.val(),
-				time: new Date($newEventTime.val())
+				description: $newEventDescription.val(),
+				time: new Date($newEventTime.val()),
+				reminderTime: new Date($newEventReminderTime.val())
 			};
 			events.add(new MyEvent(params));
 			this.reset();
@@ -156,6 +175,8 @@
 	var templateSource = $("#event-template").html();
 	var $newEventTitle = $(".new-event-title");
 	var $newEventTime = $(".new-event-time");
+	var $newEventReminderTime = $(".new-event-reminder-time");
+	var $newEventDescription = $(".new-event-description");			
 	
 	// initial rendering of events list
 	var template = Handlebars.compile(templateSource);
@@ -169,7 +190,7 @@
 		return local.toJSON().slice(0,16);
 	});
 	$newEventTime.val(new Date().toDateInputValue());
-	
+	$newEventReminderTime.val(new Date().toDateInputValue());
 	
 
 //});

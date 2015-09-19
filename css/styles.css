@@ -10,20 +10,21 @@ body {
 	margin: 0 auto;
 }
 
-.new-event {
-	height: 120px;
+.new-event-title {
+	width: 100%;
+	height: 2em;
+	margin-bottom: 5px;
 }
 
-.new-event-title {
+.new-event-description {
 	width: 100%;
 	height: 3em;
 	margin-bottom: 20px;
 }
 
-.new-event-time {
-
-	height: 3em;
+.new-event-time, .new-event-reminder-time {
 	margin-bottom: 20px;
+	margin-right: 10px;
 }
 
 .add-event-btn {
