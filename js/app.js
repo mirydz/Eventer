@@ -3,7 +3,7 @@
 
 //$(document).ready(function() {
 	function MyEvent(params) {
-		this.id = params.id	|| undefined,	
+		this.id = params.id	|| undefined;
 		this.title = params.title;
 		this.description = params.description || "";
 		this.time = params.time;
@@ -28,21 +28,21 @@
 			minutes = "0" + minutes;
 		}
 				
-		return day +" "+ monthNames[monthIndex] + " "
-				+ year + " " + hours + ":" + minutes;
+		return day +" "+ monthNames[monthIndex] + " " + year + " " + hours + ":" + minutes;
 	};
 	
 	MyEvent.prototype.formattedTime = function() {
-		
-		//return this.time.toLocaleString();
 		return this.formatTime(this.time);
-	}
+	};
 	
 	MyEvent.prototype.formattedReminderTime = function() {
 		return this.formatTime(this.reminderTime);
 	};
 	
 	var events = (function() {
+		if (! ("indexedDB" in window)) {
+			$("events-list").html("Sorry, but your browser doesn't support IndexedDB");
+		}
 		var store = new Dexie("events-store");
 		store.version(1).stores({event: '++id', });
 		store.event.mapToClass(MyEvent);
@@ -101,7 +101,7 @@
 			update: update,
 			removeById: removeById,
 			store: store,
-		}
+		};
 
 	}());
 	
@@ -111,7 +111,7 @@
 		getById: function getById(id) {
 			var eventWeLookFor = null;
 			this.data.forEach(function(element) {
-				if (element.id == id) {
+				if (element.id === id) {
 					eventWeLookFor = element;
 				}
 			}, this);
@@ -124,12 +124,10 @@
 			var now = new Date();
 			if( ! event.isReminderSent) {
 				if (event.time > now && event.reminderTime <= now) {
-					var msg = event.title + " at " + event.formattedTime()
+					var msg = event.title + " at " + event.formattedTime();
 					console.log(msg);
-					alert(msg);
-					if (document['hidden']) {
-						new Notification(msg);
-					}
+					var n = new Notification(msg);
+					n.addEventListener("clcik", function() {window.focus();});
 					event.isReminderSent = true;
 					events.update(event);
 					renderList();
@@ -147,11 +145,10 @@
 				else if (a.time > b.time)
 					return 1;
 					
-				return 0
+				return 0;
 			});
 			var templateData = { eventsList: sortedData };
 			var output = template(templateData);
-			//x = data;
 			$eventsList.html(output); 
 			registerHandlers();
 			window.setInterval(checkReminders, 10*1000);	
@@ -192,30 +189,28 @@
 		return dateTime;
 	}	
 
-	$(".add-event-btn").on("click", function addEvent(ev) {
-		ev.preventDefault();
+	function validateForm() {
 		var eventTime = getTimeFromInput($newEventTime);
 		var reminderTime = getTimeFromInput($newEventReminderTime);
+		var result = {
+			isValid: false,
+			errors: [],
+		};
+		var areRequiredFieldsFilled = $newEventTitle.val() && $newEventTime.val();
+		var isReminderTimeLessThanEventTime = reminderTime < eventTime;
 		
-		var validateForm = function() {
-			var result = {
-				isValid: false,
-				errors: [],
-			};
-			var areRequiredFieldsFilled = $newEventTitle.val() && $newEventTime.val() 
-			var isReminderTimeLessThanEventTime = reminderTime < eventTime;
-			
-			if(! areRequiredFieldsFilled)
-				result.errors.push("Event title and time are required.")
-			if (! isReminderTimeLessThanEventTime)
-				result.errors.push("Reminder time must be before the event.")
-			if (areRequiredFieldsFilled && isReminderTimeLessThanEventTime) {
-				result.isValid = true;
-			}	
-			
-			return result;	
-		}
+		if(! areRequiredFieldsFilled)
+			result.errors.push("Event title and time are required.");
+		if (! isReminderTimeLessThanEventTime)
+			result.errors.push("Reminder time must be before the event.");
+		if (areRequiredFieldsFilled && isReminderTimeLessThanEventTime)
+			result.isValid = true;
 		
+		return result;
+	}
+
+	$(".add-event-btn").on("click", function addEvent(ev) {
+		ev.preventDefault();	
 		var validationResult = validateForm();
 		
 		if (validationResult.isValid) {			
@@ -245,9 +240,9 @@
 			validationResult.errors.forEach(function(error) {
 				msg += error + '\n';
 			}, this);
-			alert(msg)
+			alert(msg);
 		}
-	});
+	});	
 	
 	$(".clear-form").on("click", function clearForm() {
 		$(".new-event-form")[0].reset();
@@ -265,7 +260,7 @@
 	renderList();
 	// ask for permission to send notifications 
 	var notification = window.Notification || window.mozNotification || window.webkitNotification;
-	notification.requestPermission(function(permission){});
+	notification.requestPermission();
 	
 	// set datetime-local input value to today for easier work
 	// see: http://stackoverflow.com/questions/6982692/html5-input-type-date-default-value-to-today
@@ -276,6 +271,7 @@
 	});
 	$newEventTime.val(new Date().toDateInputValue());
 	$newEventReminderTime.val(new Date().toDateInputValue());
+
 	
 
 //});
