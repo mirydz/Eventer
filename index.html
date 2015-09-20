@@ -13,20 +13,21 @@
 		<section class="new-event">
 			<form class="new-event-form">
 				<label>Event name:</label>
-				<input type="text" class="new-event-title" placeholder="New event name" name="eventName" required>
+				<input type="text" class="new-event-title" placeholder="Event name" name="eventName" required>
 				<label>Event description</label>
-				<input type="textarea"  class="new-event-description" placeholder="New event description" name="eventDescription">
+				<input type="textarea"  class="new-event-description" placeholder="Event description" name="eventDescription">
 				<label>Event time</label>
 				<input type="datetime-local" class="new-event-time" name="eventTime">
 				<label>Remind at</label>
 				<input type="datetime-local" class="new-event-reminder-time" name="eventReminderTime">
 				<input type="hidden" class="new-event-id">
-				<button class="add-event-btn" >Add</button>
-				
+				<button class="add-event-btn" >Save</button>
+				<a href="#" class="clear-form">clear form</a>
 			</form>
 		</section>
 		
 		<section class="events-list">
+			<p>Fetching events...</p>
 			<script id="event-template" type="text/x-handlebars-template">
 				{{#eventsList}}
 					<article class="event" data-id="{{id}}">
@@ -37,8 +38,8 @@
 						<span class="event-edit">edit</span>
 						<span class="event-save">save</span>
 						{{#if reminderTime }}
-							<br/>
-							<p>Remind me at: <span class="event-reminder-time">{{formattedReminderTime}}</span></p>
+								<br/>
+								<p>Remind me at: <span class="event-reminder-time">{{formattedReminderTime}}</span></p>
 						{{/if}}
 						<p class="event-description">{{description}}</p>
 					</article>
