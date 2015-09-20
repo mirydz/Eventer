@@ -3,7 +3,7 @@
 
 //$(document).ready(function() {
 	function MyEvent(params) {
-		this.id = params.id;		
+		this.id = params.id	|| undefined,	
 		this.title = params.title;
 		this.description = params.description || "";
 		this.time = params.time;
@@ -27,7 +27,7 @@
 		store.open();
 		function getAll(callback) { 
 			store.event.toArray(function(result) {
-				EventsViewModel = result;
+				eventsViewModel.data = result;
 				callback(result);
 			});
 		}
@@ -38,7 +38,7 @@
 				title: 			newEvent.title,
 				description: 	newEvent.description,
 				time: 			newEvent.time,
-				reminderTime: 	newEvent.reminderTime
+				reminderTime: 	newEvent.reminderTime,
 			};
 			ev.reminderTime = newEvent.reminderTime;
 			store.event.put(ev);
@@ -99,7 +99,36 @@
 		}
 
 	}());
-	var EventsViewModel = [];
+	
+	var eventsViewModel = {
+		data: [],
+		
+		getById: function getById(id) {
+			var eventWeLookFor = null;
+			this.data.forEach(function(element) {
+				if (element.id == id) {
+					eventWeLookFor = element;
+				}
+			}, this);
+			return eventWeLookFor;
+		}
+	};
+	
+	function checkReminders() {
+		eventsViewModel.data.forEach(function(event) {
+			var now = new Date();
+			if (event.time > now) {
+				if (event.reminderTime <= now) {
+					var msg = event.title + " at " + event.formattedTime()
+					console.log(msg);
+					if (document['hidden']) {
+						new Notification(msg);
+					}
+				}
+			}
+		}, this);
+	}
+	
 	function renderList() {	
 		function onFinishedFetchingData(data) {
 			var templateData = { eventsList: data };
@@ -107,8 +136,9 @@
 			//x = data;
 			$eventsList.html(output);
 			registerHandlers();
+			window.setInterval(checkReminders, 10*1000);	
 		}
-		events.getAll(onFinishedFetchingData)			
+		events.getAll(onFinishedFetchingData);	
 	}
 	
 	function registerHandlers() {
@@ -117,52 +147,53 @@
 			events.removeById(id);
 			renderList();
 		});	
-		
-		$(".event-edit").on("click", function editEvent() {
+				
+		// places the edited event data in the top form on page
+		$(".event-edit").on("click", function edit() {
 			var $eventEditBtn = $(this);
-			var $eventSaveBtn = $eventEditBtn.siblings(".event-save");
-			var $eventTitle = $eventEditBtn.siblings(".event-title");
-			var $eventTime = $eventEditBtn.siblings(".event-time");
-			var $eventReminderTime = $eventEditBtn.siblings(".event-reminder-time");
-			var eventId = $eventEditBtn.parent(".event").data("id");
-			var enableEdit = function(state) {
-				$eventEditBtn.siblings(".event-title, .event-time, .event-reminder-time")
-				.attr("contenteditable", state);
-			};
-			enableEdit(true);
-			$eventEditBtn.hide();	
-			$eventSaveBtn.on("click", function saveEvent() {
-				enableEdit(false);
-				$eventSaveBtn.hide();
-				var modifiedEvent = new MyEvent({
-					title: $eventTitle.html(),
-					time: $eventTime.html(),
-					reminderTime: $eventReminderTime.html(),
-					id: eventId
-				});
-				events.update(modifiedEvent)
-					
-				$eventEditBtn.show();
-				renderList();
-			});
-			$eventSaveBtn.show();
-			
+			var eventId = Number($eventEditBtn.parent(".event").data("id"));
+			var eventToEdit = eventsViewModel.getById(eventId);
+			$(".new-event-id").val(eventId);
+			$newEventTitle.val(eventToEdit.title);
+			$newEventDescription.val(eventToEdit.description);
+			$newEventTime.val(eventToEdit.time.toDateInputValue());
+			if (eventToEdit.hasOwnProperty("reminderTime")) {
+				$newEventReminderTime.val(eventToEdit.reminderTime.toDateInputValue());			
+			}
 		});
+	}
+	
+	function getTimeFromInput($element) {
+		var dateTimeLocalStr = $element.val();
+		var dateTime = new Date(dateTimeLocalStr);
+		dateTime.setHours(dateTime.getHours() - 2);
+		return dateTime;
 	}	
 
-	$(".new-event-form").on("submit", function addEvent(ev) {
+	$(".add-event-btn").on("click", function addEvent(ev) {
 		ev.preventDefault();
 		var isModelValid = $newEventTitle.val() && $newEventTime.val() 
 		if (isModelValid) {
+			var eventTime = new Date($newEventTime.val());
+			eventTime.setHours(eventTime.getHours() - 1);
+			
 			var params = {
+				id: Number($(".new-event-id").val()),
 				title: $newEventTitle.val(),
 				description: $newEventDescription.val(),
-				time: new Date($newEventTime.val()),
-				reminderTime: new Date($newEventReminderTime.val())
+				time: getTimeFromInput($newEventTime),
+				reminderTime: getTimeFromInput($newEventReminderTime)
 			};
-			events.add(new MyEvent(params));
-			this.reset();
+			
+			if (! params.id) {
+				events.add(new MyEvent(params));	
+			} else {
+				events.update(new MyEvent(params));
+			}
+				
+			$(".new-event-form")[0].reset();
 			$newEventTime.val(new Date().toDateInputValue());
+			$newEventReminderTime.val(new Date().toDateInputValue());
 			renderList();
 		} else {
 			alert("Please specify the name and time of event.")
@@ -181,6 +212,9 @@
 	// initial rendering of events list
 	var template = Handlebars.compile(templateSource);
 	renderList();
+	// ask for permission to send notifications 
+	var notification = window.Notification || window.mozNotification || window.webkitNotification;
+	notification.requestPermission(function(permission){});
 	
 	// set datetime-local input value to today for easier work
 	// see: http://stackoverflow.com/questions/6982692/html5-input-type-date-default-value-to-today
